@@ -539,7 +539,7 @@ namespace Amazon.Lambda.Annotations.SourceGenerators.Tests
                     {
                         (
                             typeof(SourceGenerator.Generator),
-                            "CustomAuthorizerRestExample_RestAuthorizer_Generated.g.cs",
+                            "CustomAuthorizerHttpApiExample_HttpApiAuthorizer_Generated.g.cs",
                             SourceText.From(expectedRestAuthorizerGenerated, Encoding.UTF8, SourceHashAlgorithm.Sha256)
                         )
                     },
