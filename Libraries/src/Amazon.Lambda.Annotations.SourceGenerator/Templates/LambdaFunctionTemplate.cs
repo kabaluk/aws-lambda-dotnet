@@ -780,7 +780,7 @@ namespace Amazon.Lambda.Annotations.SourceGenerator.Templates
                 // string parameter does not need to be de-serialized
                 if (parameter.Type.IsString())
                 {
- 
+
             
             #line default
             #line hidden
@@ -798,7 +798,7 @@ namespace Amazon.Lambda.Annotations.SourceGenerator.Templates
                 }
                 else
                 {
- 
+
             
             #line default
             #line hidden
@@ -983,8 +983,65 @@ namespace Amazon.Lambda.Annotations.SourceGenerator.Templates
             this.Write("\' failed to satisfy constraint: {e.Message}\");\r\n                }\r\n            }\r" +
                     "\n\r\n");
             
-            #line 361 "C:\codebase\aws-lambda-dotnet\Libraries\src\Amazon.Lambda.Annotations.SourceGenerator\Templates\LambdaFunctionTemplate.tt"
+            #line 342 "C:\codebase\aws-lambda-dotnet\Libraries\src\Amazon.Lambda.Annotations.SourceGenerator\Templates\LambdaFunctionTemplate.tt"
+           
+            }
+            else if (parameter.Attributes.Any(att => att.Type.FullName == TypeFullNames.FromCustomAuthorizerAttribute))
+            {
+                var fromAuthorizerAttribute = parameter.Attributes?.FirstOrDefault(att => att.Type.FullName == TypeFullNames.FromCustomAuthorizerAttribute) as AttributeModel<Amazon.Lambda.Annotations.APIGateway.FromCustomAuthorizerAttribute>;
+                
+                var authKey = fromAuthorizerAttribute?.Data?.Name ?? parameter.Name;
+                if(restApiAttribute != null)
+                {
+                
 
+            
+            #line default
+            #line hidden
+            this.Write("            var ");
+            
+            #line 353 "C:\codebase\aws-lambda-dotnet\Libraries\src\Amazon.Lambda.Annotations.SourceGenerator\Templates\LambdaFunctionTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Name));
+            
+            #line default
+            #line hidden
+            this.Write(" = __request__.RequestContext.Authorizer[\"");
+            
+            #line 353 "C:\codebase\aws-lambda-dotnet\Libraries\src\Amazon.Lambda.Annotations.SourceGenerator\Templates\LambdaFunctionTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(authKey));
+            
+            #line default
+            #line hidden
+            this.Write("\"].ToString();\r\n");
+            
+            #line 354 "C:\codebase\aws-lambda-dotnet\Libraries\src\Amazon.Lambda.Annotations.SourceGenerator\Templates\LambdaFunctionTemplate.tt"
+
+               }
+               else
+               {
+
+            
+            #line default
+            #line hidden
+            this.Write("            var ");
+            
+            #line 359 "C:\codebase\aws-lambda-dotnet\Libraries\src\Amazon.Lambda.Annotations.SourceGenerator\Templates\LambdaFunctionTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(parameter.Name));
+            
+            #line default
+            #line hidden
+            this.Write(" = __request__.RequestContext.Authorizer.Lambda[\"");
+            
+            #line 359 "C:\codebase\aws-lambda-dotnet\Libraries\src\Amazon.Lambda.Annotations.SourceGenerator\Templates\LambdaFunctionTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(authKey));
+            
+            #line default
+            #line hidden
+            this.Write("\"].ToString();\r\n");
+            
+            #line 360 "C:\codebase\aws-lambda-dotnet\Libraries\src\Amazon.Lambda.Annotations.SourceGenerator\Templates\LambdaFunctionTemplate.tt"
+
+               }
             }
             else
             {

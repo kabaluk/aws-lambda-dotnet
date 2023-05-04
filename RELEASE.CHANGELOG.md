@@ -1,3 +1,26 @@
+### Release 2023-04-24
+* **Amazon.Lambda.Annotations (0.13.1)**
+  * Fixed issue with diagnostics message not being correctly formatted.
+* **Amazon.Lambda.Templates (6.13.0)**
+  * Update blueprints to latest versions of AWS dependencies.
+  
+### Release 2023-04-23
+* **Amazon.Lambda.RuntimeSupport (1.8.7)**
+  * Pull request [#1491](https://github.com/aws/aws-lambda-dotnet/pull/1491) Fix issue with running native aot executables in root folder. Thanks [Richard Davison](https://github.com/richarddd)
+
+### Release 2023-04-06
+* **Amazon.Lambda.Templates (6.11.0)**
+  * Update blueprints to latest versions of AWS dependencies.  
+  * Update Lambda Annotations blueprint to use `FrameworkReference` to take advantage of the ASP.NET Core assemblies already available in the Lambda environment.
+ 
+### Release 2023-04-06
+* **Amazon.Lambda.KafkaEvents (2.0.0)**
+  * **Breaking Change:** Corrected the data type for Headers to use signed bytes.
+* **Amazon.Lambda.Annotations (0.13.1)**
+  * Fixed issue with code generation errors not being reported correctly as diagnostic errors. 
+* **Amazon.Lambda.TestTool (0.13.0)**
+  * Added support for setting environment variables configured in CloudFormation template or config file before invoking function.
+
 ### Release 2023-03-23
 * **Amazon.Lambda.RuntimeSupport (1.8.6)**
   * Fixed issue getting ObjectDisposedException writing to Console.Out after Console.Out had been unintendedly disposed.
