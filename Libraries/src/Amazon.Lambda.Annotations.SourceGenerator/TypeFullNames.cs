@@ -33,6 +33,8 @@ namespace Amazon.Lambda.Annotations.SourceGenerator
         public const string FromRouteAttribute = "Amazon.Lambda.Annotations.APIGateway.FromRouteAttribute";
         public const string FromCustomAuthorizerAttribute = "Amazon.Lambda.Annotations.APIGateway.FromCustomAuthorizerAttribute";
 
+        public const string LambdaSerializerAttribute = "Amazon.Lambda.Core.LambdaSerializerAttribute";
+
         public static HashSet<string> Requests = new HashSet<string>
         {
             APIGatewayProxyRequest,

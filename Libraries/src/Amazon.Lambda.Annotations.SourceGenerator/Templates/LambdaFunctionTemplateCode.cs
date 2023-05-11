@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using Amazon.Lambda.Annotations.SourceGenerator.Models;
 
 namespace Amazon.Lambda.Annotations.SourceGenerator.Templates

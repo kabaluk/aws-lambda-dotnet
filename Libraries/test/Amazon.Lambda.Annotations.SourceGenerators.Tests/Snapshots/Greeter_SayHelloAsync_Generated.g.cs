@@ -21,9 +21,9 @@ namespace TestServerlessApp
             var validationErrors = new List<string>();
 
             var firstNames = default(System.Collections.Generic.IEnumerable<string>);
-            if (__request__.MultiValueHeaders?.ContainsKey("names") == true)
+            if (__request__.MultiValueHeaders?.Any(x => string.Equals(x.Key, "names", StringComparison.OrdinalIgnoreCase)) == true)
             {
-                firstNames = __request__.MultiValueHeaders["names"]
+                firstNames = __request__.MultiValueHeaders.First(x => string.Equals(x.Key, "names", StringComparison.OrdinalIgnoreCase)).Value
                     .Select(q =>
                     {
                         try
@@ -75,7 +75,7 @@ namespace TestServerlessApp
                 envValue.Append($"{Environment.GetEnvironmentVariable(envName)}_");
             }
 
-            envValue.Append("amazon-lambda-annotations_0.13.2.0");
+            envValue.Append("amazon-lambda-annotations_0.13.3.0");
 
             Environment.SetEnvironmentVariable(envName, envValue.ToString());
         }
