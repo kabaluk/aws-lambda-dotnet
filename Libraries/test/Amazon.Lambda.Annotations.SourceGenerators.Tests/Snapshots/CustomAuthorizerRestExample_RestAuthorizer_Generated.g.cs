@@ -20,7 +20,23 @@ namespace TestServerlessApp
         {
             var validationErrors = new List<string>();
 
-            var authorizerValue = __request__.RequestContext.Authorizer["authKey"].ToString();
+            var authorizerValue = default(string);
+            if (__request__.RequestContext?.Authorizer == null)
+            {
+                validationErrors.Add("Could not find Authorizer data for request");
+            }
+            else if (__request__.RequestContext?.Authorizer.ContainsKey("authKey") == true)
+            {
+                try
+                {
+                    authorizerValue = (string)Convert.ChangeType(__request__.RequestContext.Authorizer["authKey"], typeof(string));
+                }
+                catch (Exception e) when (e is InvalidCastException || e is FormatException || e is OverflowException || e is ArgumentException)
+                {
+                    validationErrors.Add($"Value {__request__.RequestContext.Authorizer["authKey"]} at 'authKey' failed to satisfy constraint: {e.Message}");
+                }
+            }
+
             // return 400 Bad Request if there exists a validation error
             if (validationErrors.Any())
             {
@@ -57,7 +73,7 @@ namespace TestServerlessApp
                 envValue.Append($"{Environment.GetEnvironmentVariable(envName)}_");
             }
 
-            envValue.Append("amazon-lambda-annotations_0.13.0.0");
+            envValue.Append("amazon-lambda-annotations_0.13.3.0");
 
             Environment.SetEnvironmentVariable(envName, envValue.ToString());
         }

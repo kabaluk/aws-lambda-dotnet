@@ -244,6 +244,57 @@
                 validationErrors.Add($"Value {__request__.Body} at 'body' failed to satisfy constraint: {e.Message}");
             }
 
+<#           
+                }
+            }
+            else if (parameter.Attributes.Any(att => att.Type.FullName == TypeFullNames.FromCustomAuthorizerAttribute))
+            {
+                var fromAuthorizerAttribute = parameter.Attributes?.FirstOrDefault(att => att.Type.FullName == TypeFullNames.FromCustomAuthorizerAttribute) as AttributeModel<Amazon.Lambda.Annotations.APIGateway.FromCustomAuthorizerAttribute>;
+
+                // Use parameter name as key, if Name has not specified explicitly in the attribute definition.
+                var authKey = fromAuthorizerAttribute?.Data?.Name ?? parameter.Name;
+                if(restApiAttribute != null)
+                {
+#>
+            var <#= parameter.Name #> = default(<#= parameter.Type.FullName #>);
+            if (__request__.RequestContext?.Authorizer == null)
+            {
+                validationErrors.Add("Could not find Authorizer data for request");
+            }
+            else if (__request__.RequestContext?.Authorizer.ContainsKey("<#= authKey #>") == true)
+            {
+                try
+                {
+                    <#= parameter.Name #> = (<#= parameter.Type.FullName #>)Convert.ChangeType(__request__.RequestContext.Authorizer["<#= authKey #>"], typeof(<#= parameter.Type.FullNameWithoutAnnotations #>));
+                }
+                catch (Exception e) when (e is InvalidCastException || e is FormatException || e is OverflowException || e is ArgumentException)
+                {
+                    validationErrors.Add($"Value {__request__.RequestContext.Authorizer["<#= authKey #>"]} at '<#= authKey #>' failed to satisfy constraint: {e.Message}");
+                }
+            }
+
+<#
+                }
+                else
+                {
+#>
+            var <#= parameter.Name #> = default(<#= parameter.Type.FullName #>);
+            if (__request__.RequestContext?.Authorizer?.Lambda == null)
+            {
+                validationErrors.Add("Could not find Lambda Authorizer data for request");
+            }
+            else if (__request__.RequestContext?.Authorizer?.Lambda?.ContainsKey("<#= authKey #>") == true)
+            {
+                try
+                {
+                    <#= parameter.Name #> = (<#= parameter.Type.FullName #>)Convert.ChangeType(__request__.RequestContext.Authorizer.Lambda["<#= authKey #>"], typeof(<#= parameter.Type.FullNameWithoutAnnotations #>));
+                }
+                catch (Exception e) when (e is InvalidCastException || e is FormatException || e is OverflowException || e is ArgumentException)
+                {
+                    validationErrors.Add($"Value {__request__.RequestContext.Authorizer.Lambda["<#= authKey #>"]} at '<#= authKey #>' failed to satisfy constraint: {e.Message}");
+                }
+            }
+
 <#
                 }
             }
