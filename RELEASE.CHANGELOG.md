@@ -1,3 +1,49 @@
+### Release 2023-08-24
+* **Amazon.Lambda.TestTool (0.14.1)**
+  * Fixes an issue where using SSO profile was giving error while monitoring DLQ in Lambda Test Tool.
+* **Amazon.Lambda.MQEvents (2.0.0)**
+  * **Breaking Change:** Corrected the date type of RabbitMQMessage.BasicProperties.Priority to Nullable int in RabbitMQEvent class.
+
+
+### Release 2023-08-02
+* **Amazon.Lambda.TestTool (0.14.0)**
+  * Add new --disable-logs switch used with --no-ui to ensure the console does not include logs just the function's response.
+  * Set default values on the ILambdaContext for `FunctionName`, `InvokedFunctionArn` and `AwsRequestId`.
+  * Fixed issue when a Lambda function build directory contains multiple `*.runtimeconfig.json` file causing the tool to pick the wrong file.
+  * Pull Request [#1556](https://github.com/aws/aws-lambda-dotnet/pull/1556) add null check when traversing parent folders. Thanks [joshuA Seither](https://github.com/joshuaseither).
+  * Pull Request [#1558](https://github.com/aws/aws-lambda-dotnet/pull/1558) fix casing issue with integ test. Thanks [joshuA Seither](https://github.com/joshuaseither).
+
+### Release 2023-07-17
+* **Amazon.Lambda.Templates (6.14.0)**
+  * Update Annotations template to use 1.0.0 of Amazon.Lambda.Annotations, and convert the Lambda Empty Serverless and Lambda Empty Serverless (.NET 7 Container Image) templates to use Annotations.
+
+### Release 2023-07-14
+* **Amazon.Lambda.Annotations (1.0.0)**
+  * Update to version 1.0.0
+  * Diagnostic errors are now thrown when invalid attribute names are specified for `FromQuery`, `FromRoute`, and `FromHeader`
+
+  ### Release 2023-06-23
+* **Amazon.Lambda.Annotations (0.13.5)**
+  * Fixed error thrown when template includes a CloudFormation short-hand intrinsic function
+
+### Release 2023-06-18
+* **Amazon.Lambda.Serialization.Json (2.1.1)**
+  * Fixed issue null pointer exception when parsing events for types with MemoryStream.
+* **Amazon.Lambda.Annotations (0.13.4)**
+  * Add diagnostic error message when using complex types mapped to query string parameters.
+
+### Release 2023-06-08
+* **Amazon.Lambda.RuntimeSupport (1.8.8)**
+  * Fixed issue with failing to report uncaught exceptions that have non-ascii characters from Lambda functions.
+* **Amazon.Lambda.CognitoEvents (2.1.1)**
+  * Pull Request [#1523](https://github.com/aws/aws-lambda-dotnet/pull/1523) fixed incorrect modeling of the `ChallengeAnswer` property. Thanks [JP Grusling](https://github.com/jp-grusling)
+
+### Release 2023-06-07
+* **Amazon.Lambda.TestTool (0.13.1)**
+  * Fixed issues parsing environment variables from `aws-lambda-tools-defaults.json` that were quoted.
+* **Amazon.Lambda.Templates (6.13.1)**
+  * Renamed Powertools for AWS Lambda blueprint and updated dependencies to Powertools for AWS Lambda.
+
 ### Release 2023-05-08
 * **Amazon.Lambda.Annotations (0.13.3)**
   * Pull Request [#1504](https://github.com/aws/aws-lambda-dotnet/pull/1504) Add Http Status Code property on IHttpResult. Thanks [Paulo Serra](https://github.com/kabaluk)

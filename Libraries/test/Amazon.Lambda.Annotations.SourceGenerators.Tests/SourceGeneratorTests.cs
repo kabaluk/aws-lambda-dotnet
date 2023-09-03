@@ -11,7 +11,7 @@ using VerifyCS = Amazon.Lambda.Annotations.SourceGenerators.Tests.CSharpSourceGe
 
 namespace Amazon.Lambda.Annotations.SourceGenerators.Tests
 {
-    public class SourceGeneratorTests
+    public class SourceGeneratorTests : IDisposable
     {
         [Fact]
         public async Task Greeter()
@@ -288,6 +288,45 @@ namespace Amazon.Lambda.Annotations.SourceGenerators.Tests
                     ExpectedDiagnostics =
                     {
                         new DiagnosticResult("AWSLambda0103", DiagnosticSeverity.Info).WithArguments("VoidExample_VoidReturn_Generated.g.cs", expectedSubNamespaceGenerated),
+                        new DiagnosticResult("AWSLambda0103", DiagnosticSeverity.Info).WithArguments($"TestServerlessApp{Path.DirectorySeparatorChar}serverless.template", expectedTemplateContent)
+                    },
+                    ReferenceAssemblies = ReferenceAssemblies.Net.Net60
+                }
+            }.RunAsync();
+
+            var actualTemplateContent = File.ReadAllText(Path.Combine("TestServerlessApp", "serverless.template"));
+            Assert.Equal(expectedTemplateContent, actualTemplateContent);
+        }
+
+        [Fact]
+        public async Task VerifyNoErrorWithIntrinsicInTemplate()
+        {
+            var expectedTemplateContent = File.ReadAllText(Path.Combine("Snapshots", "ServerlessTemplates", "intrinsicexample.template")).ToEnvironmentLineEndings();
+            var expectedSubNamespaceGenerated = File.ReadAllText(Path.Combine("Snapshots", "IntrinsicExample_HasIntrinsic_Generated.g.cs")).ToEnvironmentLineEndings();
+            File.WriteAllText(Path.Combine("TestServerlessApp", "serverless.template"), expectedTemplateContent);
+
+            await new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        (Path.Combine("TestServerlessApp", "IntrinsicExample.cs"), File.ReadAllText(Path.Combine("TestServerlessApp", "IntrinsicExample.cs"))),
+                        (Path.Combine("Amazon.Lambda.Annotations", "LambdaFunctionAttribute.cs"), File.ReadAllText(Path.Combine("Amazon.Lambda.Annotations", "LambdaFunctionAttribute.cs"))),
+                        (Path.Combine("Amazon.Lambda.Annotations", "LambdaStartupAttribute.cs"), File.ReadAllText(Path.Combine("Amazon.Lambda.Annotations", "LambdaStartupAttribute.cs"))),
+                        (Path.Combine("TestServerlessApp", "AssemblyAttributes.cs"), File.ReadAllText(Path.Combine("TestServerlessApp", "AssemblyAttributes.cs"))),
+                    },
+                    GeneratedSources =
+                    {
+                        (
+                            typeof(SourceGenerator.Generator),
+                            "IntrinsicExample_HasIntrinsic_Generated.g.cs",
+                            SourceText.From(expectedSubNamespaceGenerated, Encoding.UTF8, SourceHashAlgorithm.Sha256)
+                        )
+                    },
+                    ExpectedDiagnostics =
+                    {
+                        new DiagnosticResult("AWSLambda0103", DiagnosticSeverity.Info).WithArguments("IntrinsicExample_HasIntrinsic_Generated.g.cs", expectedSubNamespaceGenerated),
                         new DiagnosticResult("AWSLambda0103", DiagnosticSeverity.Info).WithArguments($"TestServerlessApp{Path.DirectorySeparatorChar}serverless.template", expectedTemplateContent)
                     },
                     ReferenceAssemblies = ReferenceAssemblies.Net.Net60
@@ -695,6 +734,73 @@ namespace Amazon.Lambda.Annotations.SourceGenerators.Tests
             };
 
             await test.RunAsync();
+        }
+
+        [Fact]
+        public async Task ComplexQueryParameters_AreNotSupported()
+        {
+            await new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        (Path.Combine("TestServerlessApp", "PlaceholderClass.cs"), File.ReadAllText(Path.Combine("TestServerlessApp", "PlaceholderClass.cs"))),
+                        (Path.Combine("TestServerlessApp", "ComplexQueryParameter.cs"), File.ReadAllText(Path.Combine("TestServerlessApp", "ComplexQueryParameter.cs.error"))),
+                        (Path.Combine("Amazon.Lambda.Annotations", "LambdaFunctionAttribute.cs"), File.ReadAllText(Path.Combine("Amazon.Lambda.Annotations", "LambdaFunctionAttribute.cs"))),
+                        (Path.Combine("Amazon.Lambda.Annotations", "LambdaStartupAttribute.cs"), File.ReadAllText(Path.Combine("Amazon.Lambda.Annotations", "LambdaStartupAttribute.cs"))),
+                        (Path.Combine("Amazon.Lambda.Annotations", "APIGateway", "RestApiAttribute.cs"), File.ReadAllText(Path.Combine("Amazon.Lambda.Annotations", "APIGateway", "RestApiAttribute.cs"))),
+                        (Path.Combine("Amazon.Lambda.Annotations", "APIGateway", "HttpApiAttribute.cs"), File.ReadAllText(Path.Combine("Amazon.Lambda.Annotations", "APIGateway", "HttpApiAttribute.cs"))),
+                        (Path.Combine("TestServerlessApp", "AssemblyAttributes.cs"), File.ReadAllText(Path.Combine("TestServerlessApp", "AssemblyAttributes.cs"))),
+                    },
+                    ExpectedDiagnostics =
+                    {
+                         DiagnosticResult.CompilerError("AWSLambda0109").WithSpan($"TestServerlessApp{Path.DirectorySeparatorChar}ComplexQueryParameter.cs", 11, 9, 16, 10)
+                                            .WithMessage("Unsupported query paramter 'person' of type 'TestServerlessApp.Person' encountered. Only primitive .NET types and their corresponding enumerables can be used as query parameters.")
+                    },
+                    ReferenceAssemblies = ReferenceAssemblies.Net.Net60
+                }
+
+            }.RunAsync();
+        }
+
+        [Fact]
+        public async Task InvalidParameterAttributeNames_ThrowsDiagnosticErrors()
+        {
+            await new VerifyCS.Test
+            {
+                TestState =
+                {
+                    Sources =
+                    {
+                        (Path.Combine("TestServerlessApp", "PlaceholderClass.cs"), File.ReadAllText(Path.Combine("TestServerlessApp", "PlaceholderClass.cs"))),
+                        (Path.Combine("TestServerlessApp", "InvalidParameterAttributeNames.cs"), File.ReadAllText(Path.Combine("TestServerlessApp", "InvalidParameterAttributeNames.cs.error"))),
+                        (Path.Combine("Amazon.Lambda.Annotations", "LambdaFunctionAttribute.cs"), File.ReadAllText(Path.Combine("Amazon.Lambda.Annotations", "LambdaFunctionAttribute.cs"))),
+                        (Path.Combine("Amazon.Lambda.Annotations", "LambdaStartupAttribute.cs"), File.ReadAllText(Path.Combine("Amazon.Lambda.Annotations", "LambdaStartupAttribute.cs"))),
+                        (Path.Combine("Amazon.Lambda.Annotations", "APIGateway", "RestApiAttribute.cs"), File.ReadAllText(Path.Combine("Amazon.Lambda.Annotations", "APIGateway", "RestApiAttribute.cs"))),
+                        (Path.Combine("Amazon.Lambda.Annotations", "APIGateway", "HttpApiAttribute.cs"), File.ReadAllText(Path.Combine("Amazon.Lambda.Annotations", "APIGateway", "HttpApiAttribute.cs"))),
+                        (Path.Combine("TestServerlessApp", "AssemblyAttributes.cs"), File.ReadAllText(Path.Combine("TestServerlessApp", "AssemblyAttributes.cs"))),
+                    },
+                    ExpectedDiagnostics =
+                    {
+                         DiagnosticResult.CompilerError("AWSLambda0110").WithSpan($"TestServerlessApp{Path.DirectorySeparatorChar}InvalidParameterAttributeNames.cs", 10, 9, 15, 10)
+                                            .WithMessage("Invalid parameter attribute name 'This is a name' for method parameter 'name' encountered. Valid values can only contain uppercase and lowercase alphanumeric characters, periods (.), hyphens (-), underscores (_) and dollar signs ($)."),
+
+                          DiagnosticResult.CompilerError("AWSLambda0110").WithSpan($"TestServerlessApp{Path.DirectorySeparatorChar}InvalidParameterAttributeNames.cs", 18, 9, 23, 10)
+                                            .WithMessage("Invalid parameter attribute name 'System.Diagnostics.Process.Start(\"CMD.exe\",\"whoami\");' for method parameter 'test' encountered. Valid values can only contain uppercase and lowercase alphanumeric characters, periods (.), hyphens (-), underscores (_) and dollar signs ($)."),
+
+                          DiagnosticResult.CompilerError("AWSLambda0110").WithSpan($"TestServerlessApp{Path.DirectorySeparatorChar}InvalidParameterAttributeNames.cs", 26, 9, 31, 10)
+                                            .WithMessage("Invalid parameter attribute name 'first@name' for method parameter 'firstName' encountered. Valid values can only contain uppercase and lowercase alphanumeric characters, periods (.), hyphens (-), underscores (_) and dollar signs ($).")
+                    },
+                    ReferenceAssemblies = ReferenceAssemblies.Net.Net60
+                }
+
+            }.RunAsync();
+        }
+
+        public void Dispose()
+        {
+            File.Delete(Path.Combine("TestServerlessApp", "serverless.template"));
         }
     }
 }
