@@ -21,20 +21,34 @@ namespace TestServerlessApp
             var validationErrors = new List<string>();
 
             var authorizerValue = default(string);
-            if (__request__.RequestContext?.Authorizer?.Lambda == null)
+            if (__request__.RequestContext?.Authorizer?.Lambda == null || __request__.RequestContext?.Authorizer?.Lambda.ContainsKey("authKey") == false)
             {
-                validationErrors.Add("Could not find Lambda Authorizer data for request");
+                return new Amazon.Lambda.APIGatewayEvents.APIGatewayHttpApiV2ProxyResponse
+                {                    
+                    Headers = new Dictionary<string, string>
+                    {
+                        {"Content-Type", "application/json"},
+                        {"x-amzn-ErrorType", "AccessDeniedException"}
+                    },
+                    StatusCode = 401
+                };
             }
-            else if (__request__.RequestContext?.Authorizer?.Lambda?.ContainsKey("authKey") == true)
+            
+            try
             {
-                try
-                {
-                    authorizerValue = (string)Convert.ChangeType(__request__.RequestContext.Authorizer.Lambda["authKey"], typeof(string));
-                }
-                catch (Exception e) when (e is InvalidCastException || e is FormatException || e is OverflowException || e is ArgumentException)
-                {
-                    validationErrors.Add($"Value {__request__.RequestContext.Authorizer.Lambda["authKey"]} at 'authKey' failed to satisfy constraint: {e.Message}");
-                }
+              authorizerValue = (string)Convert.ChangeType(__request__.RequestContext.Authorizer.Lambda["authKey"], typeof(string));
+            }
+            catch (Exception e) when (e is InvalidCastException || e is FormatException || e is OverflowException || e is ArgumentException)
+            {
+              return new Amazon.Lambda.APIGatewayEvents.APIGatewayHttpApiV2ProxyResponse
+                {                    
+                    Headers = new Dictionary<string, string>
+                    {
+                        {"Content-Type", "application/json"},
+                        {"x-amzn-ErrorType", "AccessDeniedException"}
+                    },
+                    StatusCode = 401
+                };
             }
 
             // return 400 Bad Request if there exists a validation error
@@ -73,7 +87,7 @@ namespace TestServerlessApp
                 envValue.Append($"{Environment.GetEnvironmentVariable(envName)}_");
             }
 
-            envValue.Append("amazon-lambda-annotations_0.13.3.0");
+            envValue.Append("amazon-lambda-annotations_1.0.0.0");
 
             Environment.SetEnvironmentVariable(envName, envValue.ToString());
         }

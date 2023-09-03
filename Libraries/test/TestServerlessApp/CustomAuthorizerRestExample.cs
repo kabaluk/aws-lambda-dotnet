@@ -9,7 +9,7 @@ namespace TestServerlessApp
     {
         [LambdaFunction(ResourceName = "RestAuthorizerTest", PackageType = LambdaPackageType.Image)]
         [RestApi(LambdaHttpMethod.Get, "/rest/authorizer")]
-        public async Task RestAuthorizer([FromCustomAuthorizer(Name = "authKey")] string authorizerValue, ILambdaContext context)
+        public async Task RestAuthorizer([FromCustomAuthorizer(Name = "theAuthKey")] string authorizerValue, ILambdaContext context)
         {
             context.Logger.LogLine(authorizerValue);
             await Task.CompletedTask;

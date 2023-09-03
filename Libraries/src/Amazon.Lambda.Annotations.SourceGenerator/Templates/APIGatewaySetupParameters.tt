@@ -257,20 +257,34 @@
                 {
 #>
             var <#= parameter.Name #> = default(<#= parameter.Type.FullName #>);
-            if (__request__.RequestContext?.Authorizer == null)
+            if (__request__.RequestContext?.Authorizer == null || __request__.RequestContext?.Authorizer.ContainsKey("<#= authKey #>") == false)
             {
-                validationErrors.Add("Could not find Authorizer data for request");
+                return new <#= restApiAttribute != null || httpApiAttribute?.Data.Version == Amazon.Lambda.Annotations.APIGateway.HttpApiVersion.V1 ? "Amazon.Lambda.APIGatewayEvents.APIGatewayProxyResponse" : "Amazon.Lambda.APIGatewayEvents.APIGatewayHttpApiV2ProxyResponse" #>
+                {                    
+                    Headers = new Dictionary<string, string>
+                    {
+                        {"Content-Type", "application/json"},
+                        {"x-amzn-ErrorType", "AccessDeniedException"}
+                    },
+                    StatusCode = 401
+                };
             }
-            else if (__request__.RequestContext?.Authorizer.ContainsKey("<#= authKey #>") == true)
+            
+            try
             {
-                try
-                {
-                    <#= parameter.Name #> = (<#= parameter.Type.FullName #>)Convert.ChangeType(__request__.RequestContext.Authorizer["<#= authKey #>"], typeof(<#= parameter.Type.FullNameWithoutAnnotations #>));
-                }
-                catch (Exception e) when (e is InvalidCastException || e is FormatException || e is OverflowException || e is ArgumentException)
-                {
-                    validationErrors.Add($"Value {__request__.RequestContext.Authorizer["<#= authKey #>"]} at '<#= authKey #>' failed to satisfy constraint: {e.Message}");
-                }
+              <#= parameter.Name #> = (<#= parameter.Type.FullName #>)Convert.ChangeType(__request__.RequestContext.Authorizer["<#= authKey #>"], typeof(<#= parameter.Type.FullNameWithoutAnnotations #>));
+            }
+            catch (Exception e) when (e is InvalidCastException || e is FormatException || e is OverflowException || e is ArgumentException)
+            {
+              return new <#= restApiAttribute != null || httpApiAttribute?.Data.Version == Amazon.Lambda.Annotations.APIGateway.HttpApiVersion.V1 ? "Amazon.Lambda.APIGatewayEvents.APIGatewayProxyResponse" : "Amazon.Lambda.APIGatewayEvents.APIGatewayHttpApiV2ProxyResponse" #>
+              {                    
+                  Headers = new Dictionary<string, string>
+                  {
+                      {"Content-Type", "application/json"},
+                      {"x-amzn-ErrorType", "AccessDeniedException"}
+                  },
+                  StatusCode = 401
+              };
             }
 
 <#
@@ -279,20 +293,34 @@
                 {
 #>
             var <#= parameter.Name #> = default(<#= parameter.Type.FullName #>);
-            if (__request__.RequestContext?.Authorizer?.Lambda == null)
+            if (__request__.RequestContext?.Authorizer?.Lambda == null || __request__.RequestContext?.Authorizer?.Lambda.ContainsKey("<#= authKey #>") == false)
             {
-                validationErrors.Add("Could not find Lambda Authorizer data for request");
+                return new <#= restApiAttribute != null || httpApiAttribute?.Data.Version == Amazon.Lambda.Annotations.APIGateway.HttpApiVersion.V1 ? "Amazon.Lambda.APIGatewayEvents.APIGatewayProxyResponse" : "Amazon.Lambda.APIGatewayEvents.APIGatewayHttpApiV2ProxyResponse" #>
+                {                    
+                    Headers = new Dictionary<string, string>
+                    {
+                        {"Content-Type", "application/json"},
+                        {"x-amzn-ErrorType", "AccessDeniedException"}
+                    },
+                    StatusCode = 401
+                };
             }
-            else if (__request__.RequestContext?.Authorizer?.Lambda?.ContainsKey("<#= authKey #>") == true)
+            
+            try
             {
-                try
-                {
-                    <#= parameter.Name #> = (<#= parameter.Type.FullName #>)Convert.ChangeType(__request__.RequestContext.Authorizer.Lambda["<#= authKey #>"], typeof(<#= parameter.Type.FullNameWithoutAnnotations #>));
-                }
-                catch (Exception e) when (e is InvalidCastException || e is FormatException || e is OverflowException || e is ArgumentException)
-                {
-                    validationErrors.Add($"Value {__request__.RequestContext.Authorizer.Lambda["<#= authKey #>"]} at '<#= authKey #>' failed to satisfy constraint: {e.Message}");
-                }
+              <#= parameter.Name #> = (<#= parameter.Type.FullName #>)Convert.ChangeType(__request__.RequestContext.Authorizer.Lambda["<#= authKey #>"], typeof(<#= parameter.Type.FullNameWithoutAnnotations #>));
+            }
+            catch (Exception e) when (e is InvalidCastException || e is FormatException || e is OverflowException || e is ArgumentException)
+            {
+              return new <#= restApiAttribute != null || httpApiAttribute?.Data.Version == Amazon.Lambda.Annotations.APIGateway.HttpApiVersion.V1 ? "Amazon.Lambda.APIGatewayEvents.APIGatewayProxyResponse" : "Amazon.Lambda.APIGatewayEvents.APIGatewayHttpApiV2ProxyResponse" #>
+                {                    
+                    Headers = new Dictionary<string, string>
+                    {
+                        {"Content-Type", "application/json"},
+                        {"x-amzn-ErrorType", "AccessDeniedException"}
+                    },
+                    StatusCode = 401
+                };
             }
 
 <#
